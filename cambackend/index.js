@@ -175,6 +175,43 @@ async function run() {
                 res.status(500).json({ error: "Failed to search colleges" });
             }
         });
+        app.get("/research-papers", async (req, res) => {
+            try {
+                const papers = await db.collection("researchPaper").find({}).toArray();
+                res.json(papers);
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ error: "Server error" });
+            }
+        });
+        app.post("/admissions", async (req, res) => {
+            try {
+                const { name, subject, email, phone, address, dob, selectedCollege } = req.body;
+
+                // Validate required fields
+                if (!name || !subject || !email || !phone || !address || !dob || !selectedCollege) {
+                    return res.status(400).json({ message: "Please fill all required fields" });
+                }
+
+                const admission = {
+                    name,
+                    subject,
+                    email,
+                    phone,
+                    address,
+                    dob,
+                    selectedCollege,
+                    createdAt: new Date(),
+                };
+
+                const result = await db.collection("admissions").insertOne(admission);
+
+                res.status(201).json({ message: "Admission submitted successfully", id: result.insertedId });
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ message: "Server error" });
+            }
+        });
 
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();

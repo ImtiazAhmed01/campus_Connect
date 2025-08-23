@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdmissionForm() {
-  // State for form fields
+  const [colleges, setColleges] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     subject: "",
@@ -11,59 +11,79 @@ export default function AdmissionForm() {
     address: "",
     dob: "",
     selectedCollege: null,
+    image: null,
   });
 
-  const colleges = [
-    {
-      name: "University of Arts",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDpDlYKCbkG0h8eOxc1t-1ptoWYWlGJY46p_v25f26rUREmaFPLYdkLNYBefhTuY8yBzNxH3LbEoaekXnXKoBUEJ14lwRgrrbPm3ej0CQd2tXchRll_y0sG5Tj9lOY52Bwd01SyTNcey2UgUDGCEG4NhoRvihZCb9AotJXIg76xKUPFe2cos5bQP-PYhxrYHfAVd4Jb8X3hhqwOYgJ1QdEo4no3mGh4z4IfI-6gnRX5XM32bG0K4ZEisr0ibUKEMJWc-o8PwK31Row",
-    },
-    {
-      name: "Tech Institute",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDuGHcXtbHigFIxd5zLhMQAUXYjvFgH2tFlwuWB5B86zFv743Vx3zrHH9JCa7BD_uJn4HAEaZ1DhQSaq-WKQRyZ1eYvqcLQgusMQvxDyCXhe3lEC4rQ02JUrenjrsYDPTWnZfoq94CIBD4PXGEZ29t6yCOPklcFCNzHDeN5y-MgfevFBwnsEXqe3X_sNuytnZ8B9z36CesYIIizIysxt9tzk4_rCvohemkiE9ynMMXwKGVqd2vmRQsEqFczXRk_am4qmizWbcSOH8M",
-    },
-    {
-      name: "Business School",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDUNfQAjgjNdCzaB7Ps2ofA9WqiMwvrS1lYoMXVMZhFKrpKMjXI7uG9tW6H9DgDAt7bsehDbzd5fMNSmap-HrG0BgH2B53IU_RFTsGM3a-7dTZm7hrDayk6V9wkigH_skU9OlUFsrmfC5xgrNHfWPW-gDbC-AtWkFrS0vmAWP1xMLSJMvycg8FaG_m6cBom8DDurAYhQuSPpdpSogVjRqRjpcktqIQo_exq0y-ZQC_DI6Jjy3A0IERVz7nOxzMEug4tBz3-jUtn5mo",
-    },
-    {
-      name: "Medical College",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuByLKI2M4w4ps_8huzNGpM3d2aas2fYibRDHjbu_H0rKgyu9ebMNiCynvF31Zp7SJFY_EFGYN9WGhJA286bUdDDbu2bCMUD5offD9ouUTWQo2yOxTmoj7HR9KtIYQWg0pp1b6wBpF3FslIoqfpgR6kI6V0r2RMmG1HJ3NiyW0Yf66iAz5nvS9cfVMInbaaj3rYCfAiecw_RtELkct9es0h67Eox4z-186u23WCUPRWsrbMm9sJoOaU4_SnyYHhlycJ1U8OmAwvNI2c",
-    },
-    {
-      name: "Law School",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCt2qEqE9w7qHPUaQgGmRDts1wsSFY0kNAaPtQ5NMQ8M2QUVOMS5raLxDi61ieZ9Mu34O2qUHAogNKuZiJqnPT22HPwi_31IEUNUG3SK8toaFZufOOCq9fYO7OAkehLHlnoRMNzgWgcjpFNDLVnu3sZr6EPmqtZHMfaaoVTaQAUcvXPLGD9xGaNwf1DC6D4fzF_-v2G117zP9fpx5SPgz71ymxwoqzScc9laUJjSA9mCxavabzweRfNZf2sTPqJlMtSsB0kOU0ep5U",
-    },
-    {
-      name: "Liberal Arts College",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuALYZ62b3HqGooj40IgSezC7rEvlusemoXaWliS866eMF8owmjl44J9xqgJ8VMFYBfaiyN2KCCpvTgJxPf_HM6pkzyDK5dKxXxVcWn40AdQwEiotnqnvOkkbieU4ijtD00gNMNbrGEPmcfNiedi2ZPT7utX9r-13kmVoPGj1Qavtn4udcls5oPdvSROR5X00nlSmylh_cWXyGPt8fEiaUbF0d5lFjtSjrJ2oXEom-mvCXM638ONKyJoVuQQb9BBrynNvDasZzsbrqs",
-    },
-  ];
+  useEffect(() => {
+    fetch("http://localhost:5000/colleges")
+      .then(res => res.json())
+      .then(data => setColleges(data))
+      .catch(err => console.error(err));
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleCollegeSelect = (collegeName) => {
-    setFormData({
-      ...formData,
-      selectedCollege: collegeName,
-    });
+    setFormData({ ...formData, selectedCollege: collegeName });
   };
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    setFormData({ ...formData, image: e.target.files[0] });
+  };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   if (
+  //     !formData.name ||
+  //     !formData.subject ||
+  //     !formData.email ||
+  //     !formData.phone ||
+  //     !formData.address ||
+  //     !formData.dob ||
+  //     !formData.selectedCollege
+  //   ) {
+  //     alert("Please fill all fields");
+  //     return;
+  //   }
+
+  //   const payload = new FormData();
+  //   Object.entries(formData).forEach(([key, value]) => {
+  //     if (value) payload.append(key, value);
+  //   });
+
+  //   try {
+  //     const res = await fetch("http://localhost:5000/admissions", {
+  //       method: "POST",
+  //       body: payload,
+  //     });
+
+  //     if (res.ok) {
+  //       alert("Application submitted successfully!");
+  //       setFormData({
+  //         name: "",
+  //         subject: "",
+  //         email: "",
+  //         phone: "",
+  //         address: "",
+  //         dob: "",
+  //         selectedCollege: null,
+  //         image: null,
+  //       });
+  //     } else {
+  //       alert("Failed to submit application");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Error submitting application");
+  //   }
+  // };
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validate all fields are filled
+
     if (
       !formData.name ||
       !formData.subject ||
@@ -75,18 +95,42 @@ export default function AdmissionForm() {
     ) {
       alert("Please fill all fields");
       return;
-    } else {
-      // Submit logic here
-      console.log("Form submitted:", formData);
-      setFormData({
-        name: "",
-        subject: "",
-        email: "",
-        phone: "",
-        address: "",
-        dob: "",
-        selectedCollege: null,
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/admissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          subject: formData.subject,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          dob: formData.dob,
+          selectedCollege: formData.selectedCollege,
+        }),
       });
+
+      if (res.ok) {
+        alert("Application submitted successfully!");
+        setFormData({
+          name: "",
+          subject: "",
+          email: "",
+          phone: "",
+          address: "",
+          dob: "",
+          selectedCollege: null,
+          image: null,
+        });
+      } else {
+        const errData = await res.json();
+        alert("Failed to submit: " + errData.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error submitting application");
     }
   };
 
@@ -107,11 +151,10 @@ export default function AdmissionForm() {
               <div
                 key={index}
                 onClick={() => handleCollegeSelect(college.name)}
-                className={`flex items-center gap-3 p-3 rounded-lg border ${
-                  formData.selectedCollege === college.name
-                    ? "border-blue-500"
-                    : "border-gray-200 dark:border-gray-700"
-                } bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer`}
+                className={`flex items-center gap-3 p-3 rounded-lg border ${formData.selectedCollege === college.name
+                  ? "border-blue-500"
+                  : "border-gray-200 dark:border-gray-700"
+                  } bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer`}
               >
                 <div
                   className="w-10 h-10 bg-cover bg-center rounded-lg shrink-0"
@@ -125,147 +168,98 @@ export default function AdmissionForm() {
           </div>
         </div>
 
-        {/* Admission Form */}
-        <form onSubmit={handleSubmit}>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            Admission Form
-          </h2>
+        {/* Show form only if a college is selected */}
+        {formData.selectedCollege && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Admission Form for {formData.selectedCollege}
+            </h2>
 
-          <div className="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Candidate Name *
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter your name"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-                required
-              />
+            <InputField
+              label="Candidate Name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter your name"
+            />
+            <InputField
+              label="Subject"
+              name="subject"
+              value={formData.subject}
+              onChange={handleInputChange}
+              placeholder="Enter your subject"
+            />
+            <InputField
+              label="Email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Enter your email"
+            />
+            <InputField
+              label="Phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              placeholder="Enter your phone number"
+            />
+            <InputField
+              label="Address"
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+              placeholder="Enter your address"
+            />
+            <InputField
+              label="Date of Birth"
+              type="date"
+              name="dob"
+              value={formData.dob}
+              onChange={handleInputChange}
+            />
+
+            {/* Image Upload */}
+            <div className="mt-6 mb-8 p-2 border-dashed border-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Upload Image </label>
+              <input type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-700 dark:file:text-white hover:file:bg-gray-200 dark:hover:file:bg-gray-600" />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Subject *
-              </label>
-              <input
-                type="text"
-                name="subject"
-                value={formData.subject}
-                onChange={handleInputChange}
-                placeholder="Enter your subject"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Email *
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Enter your email"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Phone *
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="Enter your phone number"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Address *
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="Enter your address"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Date of Birth *
-              </label>
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Image Upload */}
-          <div className="mt-8 mb-10">
-            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center">
-              <div className="flex flex-col items-center gap-2 mb-4">
-                <svg
-                  className="w-10 h-10 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Upload Image
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Click to upload your profile image
-                </p>
-              </div>
+            <div className="text-center">
               <button
-                type="button"
-                className="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full font-medium hover:bg-gray-200 dark:hover:bg-gray-600"
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Upload
+                Submit Application
               </button>
             </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="text-center">
-            <button
-              type="submit"
-              className="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg cursor-pointer"
-            >
-              Submit Application
-            </button>
-          </div>
-        </form>
+          </form>
+        )}
       </div>
+    </div>
+  );
+}
+
+// Reusable input field component (Capitalized)
+function InputField({ label, name, type = "text", value, onChange, placeholder }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        {label} *
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
+        required
+      />
     </div>
   );
 }
