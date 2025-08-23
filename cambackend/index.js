@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 
 const uri = `mongodb+srv://${process.env.DB_user}:${process.env.DB_pass}@cluster0.khtuk.mongodb.net/?retryWrites=true&w=majority`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -73,9 +73,16 @@ async function run() {
         // 3. Get a single college by ID (GET)
         app.get('/colleges/:id', async (req, res) => {
             try {
-                const college = await db.collection('colleges').findOne({
-                    _id: new ObjectId(req.params.id)
-                });
+                const { id } = req.params;
+
+                let query;
+                if (ObjectId.isValid(id)) {
+                    query = { _id: new ObjectId(id) };
+                } else {
+                    query = { _id: id }; // if stored as string
+                }
+
+                const college = await db.collection('colleges').findOne(query);
 
                 if (!college) {
                     return res.status(404).json({ error: "College not found" });
@@ -87,6 +94,7 @@ async function run() {
                 res.status(500).json({ error: "Failed to fetch college" });
             }
         });
+
         // app.get('/colleges/:id', async (req, res) => {
         //     const db = req.app.locals.db;
         //     const { id } = req.params;
