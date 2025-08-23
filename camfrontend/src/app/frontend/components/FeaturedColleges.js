@@ -86,7 +86,11 @@ const FeaturedColleges = () => {
   useEffect(() => {
     const fetchColleges = async () => {
       try {
-        const res = await fetch("http://localhost:5000/colleges");
+        // const res = await fetch("process.env.NEXT_PUBLIC_API_URL/colleges");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/colleges`);
+
+        console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
+
         const data = await res.json();
         setColleges(data);
       } catch (error) {

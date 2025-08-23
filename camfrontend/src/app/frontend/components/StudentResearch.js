@@ -5,7 +5,7 @@ export default function ResearchTab() {
   const [publications, setPublications] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/research-papers")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/research-papers`)
       .then(res => res.json())
       .then(data => setPublications(data))
       .catch(err => console.error(err));

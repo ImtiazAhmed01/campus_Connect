@@ -12,7 +12,7 @@ export default function Overview() {
   useEffect(() => {
     const fetchCollege = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/colleges/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/colleges/${id}`);
         if (!res.ok) throw new Error("Failed to fetch college");
         const data = await res.json();
         setCollege(data);

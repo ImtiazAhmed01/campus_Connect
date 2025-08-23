@@ -5,12 +5,12 @@ import { useState } from 'react';
 export default function UserProfile() {
   // User data state
   const [user, setUser] = useState({
-    name: 'Alex Johnson',
-    email: 'alex.johnson@example.com',
-    university: 'University of Metropolitan City',
+    name: 'John Cooper',
+    email: 'cooper@example.com',
+    university: 'BRAC Univesity',
     address: '123 College Ave, Metropolitan City',
-    profilePic: 'https://randomuser.me/api/portraits/men/32.jpg',
-    bio: 'Computer Science student passionate about AI and web development'
+    profilePic: 'https://img.freepik.com/free-photo/school-boy-with-book-park_23-2148199240.jpg',
+    bio: 'Computer Science student passionate about CyberSecurity and web development'
   });
 
   // Edit mode state

@@ -10,7 +10,7 @@ export default function SearchColleges() {
 
     // fetch once
     useEffect(() => {
-        fetch("http://localhost:5000/colleges")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/colleges`)
             .then((r) => r.json())
             .then(setAllColleges)
             .catch((e) => console.error("Failed to load colleges:", e));

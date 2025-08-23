@@ -162,7 +162,7 @@ export default function Navbar() {
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-40 bg-white/80 dark:bg-gradient-to-b dark:from-blue-950 dark:to-gray-800 border border-gray-200 dark:border-gray-500 rounded shadow-lg z-10">
                     <div className="px-4 py-2 text-gray-700 dark:text-gray-200 border-b border-gray-300">
-                      <Link href="/frontend/profile">Khatab wedaa</Link>
+                      <Link href="/frontend/profile">My Profile</Link>
                     </div>
                     <Link
                       href="/dashboard"

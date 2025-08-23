@@ -15,7 +15,7 @@ export default function AdmissionForm() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:5000/colleges")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/colleges`)
       .then(res => res.json())
       .then(data => setColleges(data))
       .catch(err => console.error(err));
@@ -56,7 +56,7 @@ export default function AdmissionForm() {
   //   });
 
   //   try {
-  //     const res = await fetch("http://localhost:5000/admissions", {
+  //     const res = await fetch("process.env.NEXT_PUBLIC_API_URL/admissions", {
   //       method: "POST",
   //       body: payload,
   //     });
@@ -98,7 +98,7 @@ export default function AdmissionForm() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/admissions", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admissions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

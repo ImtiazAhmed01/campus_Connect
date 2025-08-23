@@ -1,233 +1,147 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const app = express();
+const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 
-// middle ware
+const app = express();
+const port = process.env.PORT || 5000;
+
+// Middleware
 app.use(express.json());
 app.use(cors());
-app.use(cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-}));
 
-app.get('/', (req, res) => {
-    res.send('server is running')
-});
-
-
-const uri = `mongodb+srv://${process.env.DB_user}:${process.env.DB_pass}@cluster0.khtuk.mongodb.net/?retryWrites=true&w=majority`;
-
-
+// MongoDB connection
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    }
+    },
 });
 
 async function run() {
     try {
-        await client.connect(); // ensure connection
+        await client.connect();
         const db = client.db('campusconnect');
-        // const campaignData = client.db('campaingDB').collection('campaigns')
-        // const donationDB = client.db('campaingDB').collection('donationCollection')
 
-        // Routes
+        console.log("Connected to MongoDB");
 
-        // 1. Create a new college (POST)
-        app.post('/colleges', async (req, res) => {
-            try {
-                const college = req.body;
+        // -----------------------------
+        // COLLEGES ROUTES
+        // -----------------------------
+        const colleges = db.collection('colleges');
 
-                // Simple validation
-                if (!college.name || !college.location) {
-                    return res.status(400).json({ error: "College name and location are required" });
-                }
-
-                const result = await db.collection('colleges').insertOne(college);
-                res.status(201).json({
-                    message: "College added successfully",
-                    collegeId: result.insertedId
-                });
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: "Failed to add college" });
-            }
-        });
-
-        // 2. Get all colleges (GET)
+        // GET all colleges
         app.get('/colleges', async (req, res) => {
-            try {
-                const colleges = await db.collection('colleges').find().toArray();
-                res.json(colleges);
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: "Failed to fetch colleges" });
-            }
+            const all = await colleges.find().toArray();
+            res.json(all);
         });
 
-        // 3. Get a single college by ID (GET)
+        // GET college by ID
         app.get('/colleges/:id', async (req, res) => {
-            try {
-                const { id } = req.params;
+            const { id } = req.params;
+            if (!ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid ID" });
 
-                let query;
-                if (ObjectId.isValid(id)) {
-                    query = { _id: new ObjectId(id) };
-                } else {
-                    query = { _id: id }; // if stored as string
-                }
+            const college = await colleges.findOne({ _id: new ObjectId(id) });
+            if (!college) return res.status(404).json({ error: "College not found" });
 
-                const college = await db.collection('colleges').findOne(query);
-
-                if (!college) {
-                    return res.status(404).json({ error: "College not found" });
-                }
-
-                res.json(college);
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: "Failed to fetch college" });
-            }
+            res.json(college);
         });
 
-        // app.get('/colleges/:id', async (req, res) => {
-        //     const db = req.app.locals.db;
-        //     const { id } = req.params;
+        // POST new college
+        app.post('/colleges', async (req, res) => {
+            const { name, location } = req.body;
+            if (!name || !location) return res.status(400).json({ error: "Name & location required" });
 
-        //     let query;
-        //     if (ObjectId.isValid(id)) {
-        //         query = { _id: new ObjectId(id) };
-        //     } else {
-        //         query = { _id: id };
-        //     }
+            const result = await colleges.insertOne({ name, location });
+            res.status(201).json({ message: "College added", collegeId: result.insertedId });
+        });
 
-        //     const college = await db.collection('colleges').findOne(query);
-
-        //     if (!college) {
-        //         return res.status(404).json({ message: 'College not found' });
-        //     }
-
-        //     res.json(college);
-        // });
-
-        // 4. Update a college (PUT)
+        // PUT update college
         app.put('/colleges/:id', async (req, res) => {
-            try {
-                const collegeId = req.params.id;
-                const updatedData = req.body;
+            const { id } = req.params;
+            const { name, location } = req.body;
+            if (!ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid ID" });
+            if (!name || !location) return res.status(400).json({ error: "Name & location required" });
 
-                // Simple validation
-                if (!updatedData.name || !updatedData.location) {
-                    return res.status(400).json({ error: "College name and location are required" });
-                }
+            const result = await colleges.updateOne({ _id: new ObjectId(id) }, { $set: { name, location } });
+            if (result.matchedCount === 0) return res.status(404).json({ error: "College not found" });
 
-                const result = await db.collection('colleges').updateOne(
-                    { _id: new ObjectId(collegeId) },
-                    { $set: updatedData }
-                );
-
-                if (result.matchedCount === 0) {
-                    return res.status(404).json({ error: "College not found" });
-                }
-
-                res.json({ message: "College updated successfully" });
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: "Failed to update college" });
-            }
+            res.json({ message: "College updated" });
         });
 
-        // 5. Delete a college (DELETE)
+        // DELETE college
         app.delete('/colleges/:id', async (req, res) => {
-            try {
-                const collegeId = req.params.id;
-                const result = await db.collection('colleges').deleteOne({
-                    _id: new ObjectId(collegeId)
-                });
+            const { id } = req.params;
+            if (!ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid ID" });
 
-                if (result.deletedCount === 0) {
-                    return res.status(404).json({ error: "College not found" });
-                }
+            const result = await colleges.deleteOne({ _id: new ObjectId(id) });
+            if (result.deletedCount === 0) return res.status(404).json({ error: "College not found" });
 
-                res.json({ message: "College deleted successfully" });
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: "Failed to delete college" });
-            }
+            res.json({ message: "College deleted" });
         });
 
-        // 6. Search colleges by name (GET)
+        // Search colleges
         app.get('/colleges/search/:name', async (req, res) => {
-            try {
-                const name = req.params.name;
-                const colleges = await db.collection('colleges')
-                    .find({ name: { $regex: name, $options: 'i' } })
-                    .toArray();
-
-                res.json(colleges);
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: "Failed to search colleges" });
-            }
-        });
-        app.get("/research-papers", async (req, res) => {
-            try {
-                const papers = await db.collection("researchPaper").find({}).toArray();
-                res.json(papers);
-            } catch (err) {
-                console.error(err);
-                res.status(500).json({ error: "Server error" });
-            }
-        });
-        app.post("/admissions", async (req, res) => {
-            try {
-                const { name, subject, email, phone, address, dob, selectedCollege } = req.body;
-
-                // Validate required fields
-                if (!name || !subject || !email || !phone || !address || !dob || !selectedCollege) {
-                    return res.status(400).json({ message: "Please fill all required fields" });
-                }
-
-                const admission = {
-                    name,
-                    subject,
-                    email,
-                    phone,
-                    address,
-                    dob,
-                    selectedCollege,
-                    createdAt: new Date(),
-                };
-
-                const result = await db.collection("admissions").insertOne(admission);
-
-                res.status(201).json({ message: "Admission submitted successfully", id: result.insertedId });
-            } catch (err) {
-                console.error(err);
-                res.status(500).json({ message: "Server error" });
-            }
+            const { name } = req.params;
+            const result = await colleges.find({ name: { $regex: name, $options: 'i' } }).toArray();
+            res.json(result);
         });
 
-        // Connect the client to the server	(optional starting in v4.7)
-        // await client.connect();
-        // Send a ping to confirm a successful connection
-        // await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // -----------------------------
+        // RESEARCH PAPERS
+        // -----------------------------
+        app.get('/research-papers', async (req, res) => {
+            const papers = await db.collection('researchPaper').find().toArray();
+            res.json(papers);
+        });
+
+        // -----------------------------
+        // ADMISSIONS
+        // -----------------------------
+        const admissions = db.collection('admissions');
+
+        app.get('/admissions', async (req, res) => {
+            const all = await admissions.find().toArray();
+            res.json(all);
+        });
+
+        app.post('/admissions', async (req, res) => {
+            const { name, subject, email, phone, address, dob, selectedCollege } = req.body;
+            if (!name || !subject || !email || !phone || !address || !dob || !selectedCollege) {
+                return res.status(400).json({ message: "Fill all required fields" });
+            }
+
+            const result = await admissions.insertOne({ name, subject, email, phone, address, dob, selectedCollege, createdAt: new Date() });
+            res.status(201).json({ message: "Admission submitted", id: result.insertedId });
+        });
+
+        // -----------------------------
+        // REVIEWS
+        // -----------------------------
+        const reviews = db.collection('reviews');
+
+        app.post('/reviews', async (req, res) => {
+            const { admissionId, reviewText, rating } = req.body;
+            if (!admissionId || !reviewText || !rating) {
+                return res.status(400).json({ message: "All fields required" });
+            }
+
+            const result = await reviews.insertOne({ admissionId, reviewText, rating, createdAt: new Date() });
+            res.status(201).json({ message: "Review added", id: result.insertedId });
+        });
+
+        // -----------------------------
+        // SERVER START
+        // -----------------------------
+        app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+        });
+
     } finally {
-        // Ensures that the client will close when you finish/error
-        // await client.close();
+        // client will stay connected while server runs
     }
 }
-run().catch(console.dir);
 
-
-
-
-app.listen(port, () => {
-    console.log(`server is running on ${port}`)
-})
+run().catch(console.error);
